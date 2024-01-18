@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle electrodynamics</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script> 
+    <script src = "drawArrow.js"></script>
+    <script src = 'drawFrame.js'></script>
+    <script src = 'simulate.js'></script>
+    <script src = "handleDragging.js"></script>
+</head>
+
+<style>
+    body{
+        background: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    .svgElement {
+        border: 1px solid white;
+        background: rgb(0, 0, 0);
+    }
+
+</style>
+<body>  
+    
+    <div>
+        <div>
+            <button id = 'startSimulation'>Start</button>
+            <button id = 'pauseSimulation'>Pause</button>
+            <button id = 'resetSimulation'>Reset</button>
+        </div>
+
+        <svg class = "svgElement" id = "svgSimulation"></svg>
+
+    </div>
+
+    <script>
+        const width = 300;
+        const height = 300;
+
+        const svgSimulation = d3.select("#svgSimulation")
+            .attr("width", width)
+            .attr("height", height);
+
+        //Data scene 
+        const svgData = d3.select('#svgData')
+            .attr("width", .15*window.innerWidth)
+            .attr("height", .9*window.innerHeight);
+
+        //Data setup
+        const initialConditions = {
+            pos: {x: width/2, y: height/2},
+            vel: {x: 0, y: 100},
+        };
+
+        var ball = {
+            radius: 7.5,
+            pos: {
+                x: initialConditions.pos.x, 
+                y: initialConditions.pos.y
+            },
+            vel:{
+                 x: initialConditions.vel.x, 
+                 y: initialConditions.vel.y
+                },
+            isDragging: false,
+        };
+
+        const scaleVector = .2;
+
+        var vectorController = {
+            pos: {
+                x: initialConditions.pos.x + scaleVector * initialConditions.vel.x,
+                y: initialConditions.pos.y + scaleVector * initialConditions.vel.y
+            },
+            radius: ball.radius,
+            isDragging: false
+        }
+
+
+        
+
+    //Handle simulation start, pause, reset    
+        document.getElementById('startSimulation')
+                .addEventListener('click', startSimulation);
+
+        document.getElementById('pauseSimulation')
+                .addEventListener('click', pauseSimulation);
+
+        document.getElementById('resetSimulation')
+                .addEventListener('click', resetSimulation);
+    
+         
+    //Get svg frame border            
+        const rect = svgSimulation.node().getBoundingClientRect();
+
+    //Handle draggig the vector
+        svgSimulation.node().addEventListener('mousedown', vectorMouseDown);        
+        svgSimulation.node().addEventListener('mousemove', vectorMouseMove);
+        svgSimulation.node().addEventListener('mouseup', vectorMouseUp);
+
+
+    //scene
+        const fps = 20;
+        const timeStep = 1/fps; 
+        var frame = 0;
+        var t = 0;
+        
+    //Simulation setup
+        var isSimulating = true; 
+        var startButtonCount = 0; 
+
+    //cinematics data recording
+        const cinematicsDataLength = 180;        
+       
+        var cinematicsData = [];
+        for(let i = 0; i < cinematicsDataLength; i++){
+            cinematicsData.push([frame, ball.pos.x, ball.pos.y])
+        };        
+
+        drawFrame();    
+        
+    </script>
+</body>
+</html>
